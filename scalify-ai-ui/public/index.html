@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload Tarball</title>
+</head>
+<body>
+    <h1>Upload Your Tarball</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" id="tarball" name="file" accept=".tar">
+        <button type="button" onclick="uploadFile()">Upload</button>
+    </form>
+    <div id="response"></div>
+
+    <script>
+        function uploadFile() {
+            const formData = new FormData();
+            const fileInput = document.getElementById('tarball');
+            formData.append('file', fileInput.files[0]);
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = 'optimized_tarball.tar';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.getElementById('response').innerText = "Optimization complete. Downloading optimized tarball.";
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('response').innerText = "An error occurred.";
+            });
+        }
+    </script>
+</body>
+</html>
